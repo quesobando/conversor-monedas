@@ -114,3 +114,7 @@ tasks.jacocoTestReport {
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
+
+dependencyLocking {
+    lockAllConfigurations()
+}

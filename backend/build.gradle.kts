@@ -66,7 +66,7 @@ tasks.withType<JavaCompile> {
 sonar {
     properties {
         property("sonar.projectKey", "quesobando_conversor-monedas")
-        property("sonar.organization", "quesobando")   // verifica en SonarCloud
+        property("sonar.organization", "quesobando")
         property("sonar.projectName", "conversor-monedas")
         property("sonar.host.url", "https://sonarcloud.io")
 
@@ -76,10 +76,10 @@ sonar {
             "build/reports/jacoco/test/jacocoTestReport.xml"
         )
 
-        // Excluidos solo de cobertura
+        // Excluidos solo de cobertura: clases sin lógica propia
         property(
             "sonar.coverage.exclusions",
-            "**/config/**,**/dto/**,**/model/**,**/*Application.java"
+            "**/dto/**,**/config/CorsConfig.java,**/config/WebClientConfig.java"
         )
 
         // Excluidos de todo el análisis
@@ -111,10 +111,7 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
-
+// Versiones fijadas en gradle.lockfile (junto con gradle/verification-metadata.xml)
 dependencyLocking {
     lockAllConfigurations()
 }

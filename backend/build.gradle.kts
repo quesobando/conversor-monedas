@@ -65,8 +65,8 @@ tasks.withType<JavaCompile> {
 
 sonar {
     properties {
-        property("sonar.projectKey", "leniaso_conversor-monedas")
-        property("sonar.organization", "leniaso")   // verifica en SonarCloud
+        property("sonar.projectKey", "quesobando_conversor-monedas")
+        property("sonar.organization", "quesobando")   // verifica en SonarCloud
         property("sonar.projectName", "conversor-monedas")
         property("sonar.host.url", "https://sonarcloud.io")
 
@@ -95,14 +95,19 @@ tasks.named("sonar") {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.12"   // 0.8.11+ soporta Java 21
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)   // el reporte se genera solo después de los tests
 }
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
-        xml.required.set(true)
-        html.required.set(false)
+        xml.required.set(true)    // este es el que lee SonarCloud
+        html.required.set(true)   // para verlo tú localmente
+        csv.required.set(false)
     }
 }
 

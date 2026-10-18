@@ -3,7 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.3.4"
     id("io.gatling.gradle") version "3.15.1.2"
     id("jacoco")
-    id("org.sonarqube") version "5.1.0.4882"
+    id("org.sonarqube") version "7.3.0.8198"
 }
 
 group = "com.conversor"

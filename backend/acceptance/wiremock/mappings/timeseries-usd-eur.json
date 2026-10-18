@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/2026-01-01..2026-01-03"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "amount": 1.0,
+      "base": "USD",
+      "start_date": "2026-01-01",
+      "end_date": "2026-01-03",
+      "rates": {
+        "2026-01-01": { "EUR": 0.90 },
+        "2026-01-02": { "EUR": 0.91 },
+        "2026-01-03": { "EUR": 0.92 }
+      }
+    }
+  }
+}

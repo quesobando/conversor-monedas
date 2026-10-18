@@ -1,0 +1,12 @@
+{
+  "request": { "method": "GET", "urlPath": "/v1/currencies" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "USD": "United States Dollar (mock)",
+      "EUR": "Euro (mock)",
+      "GBP": "British Pound (mock)"
+    }
+  }
+}

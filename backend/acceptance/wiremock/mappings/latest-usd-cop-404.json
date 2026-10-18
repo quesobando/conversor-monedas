@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/latest",
+    "queryParameters": {
+      "base": { "equalTo": "USD" },
+      "symbols": { "equalTo": "COP" }
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "message": "not found" }
+  }
+}

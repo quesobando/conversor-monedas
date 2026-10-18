@@ -63,6 +63,40 @@ tasks.withType<JavaCompile> {
     options.release.set(21)
 }
 
+sourceSets {
+    create("acceptanceTest")
+}
+
+dependencies {
+    "acceptanceTestImplementation"(platform("org.junit:junit-bom:6.0.3"))
+    "acceptanceTestImplementation"("io.karatelabs:karate-junit6:2.1.2")
+    "acceptanceTestImplementation"("org.junit.jupiter:junit-jupiter")
+    "acceptanceTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.register<Test>("acceptanceTest") {
+    description = "Pruebas de aceptación con Karate contra la API levantada"
+    group = "verification"
+
+    testClassesDirs = sourceSets["acceptanceTest"].output.classesDirs
+    classpath = sourceSets["acceptanceTest"].runtimeClasspath
+    useJUnitPlatform()
+
+    // URL de la API bajo prueba: -DbaseUrl=..., variable BASE_URL o localhost:8080
+    systemProperty(
+        "baseUrl",
+        System.getProperty("baseUrl") ?: System.getenv("BASE_URL") ?: "http://localhost:8080"
+    )
+
+    // Depende de un entorno externo: nunca se da por "up-to-date"
+    outputs.upToDateWhen { false }
+
+    testLogging {
+        events("passed", "failed", "skipped")
+        showStandardStreams = true
+    }
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "quesobando_conversor-monedas")

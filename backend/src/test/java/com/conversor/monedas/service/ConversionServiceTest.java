@@ -219,4 +219,28 @@ class ConversionServiceTest {
         assertThat(resultado.getPoints().get(2).getDate()).isEqualTo(dia3);
         assertThat(resultado.getPoints().get(0).getRate()).isEqualByComparingTo("0.91");
     }
+
+    @Test
+    @DisplayName("getVariation debe omitir las fechas que no traen tasa para la moneda destino")
+    void getVariation_debeOmitirFechasSinTasaParaMonedaDestino() {
+        // Arrange
+        LocalDate dia1 = LocalDate.of(2026, 8, 1);
+        LocalDate dia2 = LocalDate.of(2026, 8, 2);
+
+        Map<LocalDate, Map<String, BigDecimal>> ratesPorFecha = new LinkedHashMap<>();
+        ratesPorFecha.put(dia1, Map.of("EUR", new BigDecimal("0.91")));
+        ratesPorFecha.put(dia2, Map.of("GBP", new BigDecimal("0.78"))); // sin EUR
+
+        FrankfurterTimeSeriesResponse serieExterna = new FrankfurterTimeSeriesResponse();
+        serieExterna.rates = ratesPorFecha;
+        when(frankfurterService.getTimeSeries("USD", "EUR", dia1, dia2)).thenReturn(serieExterna);
+
+        // Act
+        TimeSeriesResponse resultado = conversionService.getVariation("usd", "eur", dia1, dia2);
+
+        // Assert: solo queda el día que sí trae la tasa EUR
+        assertThat(resultado.getPoints()).hasSize(1);
+        assertThat(resultado.getPoints().get(0).getDate()).isEqualTo(dia1);
+        assertThat(resultado.getPoints().get(0).getRate()).isEqualByComparingTo("0.91");
+    }
 }

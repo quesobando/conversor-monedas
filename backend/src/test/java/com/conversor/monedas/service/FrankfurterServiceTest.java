@@ -6,13 +6,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,6 +24,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -193,5 +198,79 @@ class FrankfurterServiceTest {
 
         // Assert
         assertThat(resultado).isNull();
+    }
+
+    // ---------------------------------------------------------------
+    // Construcción de las URIs (cuerpo de las lambdas de uri(...))
+    //
+    // Con WebClient simulado, las lambdas que arman la URI nunca se
+    // ejecutan. Se capturan y se aplican sobre un UriBuilder real para
+    // comprobar la ruta y los parámetros que se enviarían a Frankfurter.
+    // ---------------------------------------------------------------
+
+    @Test
+    @DisplayName("getLatestRates debe construir la URI /latest con el parámetro base")
+    void getLatestRates_debeConstruirUriConBase() {
+        // Arrange
+        when(webClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(FrankfurterLatestResponse.class))
+                .thenReturn(Mono.just(new FrankfurterLatestResponse()));
+
+        // Act
+        frankfurterService.getLatestRates("USD");
+
+        // Assert
+        URI uri = construirUriCapturada();
+        assertThat(uri.getPath()).isEqualTo("/latest");
+        assertThat(uri.getQuery()).isEqualTo("base=USD");
+    }
+
+    @Test
+    @DisplayName("getLatestRate debe construir la URI /latest con los parámetros base y symbols")
+    void getLatestRate_debeConstruirUriConBaseYSymbols() {
+        // Arrange
+        when(webClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(FrankfurterLatestResponse.class))
+                .thenReturn(Mono.just(new FrankfurterLatestResponse()));
+
+        // Act
+        frankfurterService.getLatestRate("USD", "EUR");
+
+        // Assert
+        URI uri = construirUriCapturada();
+        assertThat(uri.getPath()).isEqualTo("/latest");
+        assertThat(uri.getQuery()).isEqualTo("base=USD&symbols=EUR");
+    }
+
+    @Test
+    @DisplayName("getTimeSeries debe construir la URI con el rango de fechas y los parámetros base y symbols")
+    void getTimeSeries_debeConstruirUriConRangoDeFechas() {
+        // Arrange
+        LocalDate start = LocalDate.of(2026, 8, 1);
+        LocalDate end = LocalDate.of(2026, 8, 15);
+        when(webClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(FrankfurterTimeSeriesResponse.class))
+                .thenReturn(Mono.just(new FrankfurterTimeSeriesResponse()));
+
+        // Act
+        frankfurterService.getTimeSeries("USD", "EUR", start, end);
+
+        // Assert
+        URI uri = construirUriCapturada();
+        assertThat(uri.getPath()).isEqualTo("/2026-08-01..2026-08-15");
+        assertThat(uri.getQuery()).isEqualTo("base=USD&symbols=EUR");
+    }
+
+    /** Captura la lambda pasada a uri(...) y la aplica sobre un UriBuilder real. */
+    private URI construirUriCapturada() {
+        ArgumentCaptor<Function<UriBuilder, URI>> captor = ArgumentCaptor.forClass(Function.class);
+        verify(requestHeadersUriSpec).uri(captor.capture());
+        return captor.getValue().apply(new DefaultUriBuilderFactory().builder());
     }
 }

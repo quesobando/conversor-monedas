@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,27 @@ class GlobalExceptionHandlerTest {
         assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(resultado.getBody()).isNotNull();
         assertThat(resultado.getBody()).containsEntry("error", "Error inesperado: Fallo de conexión con Frankfurter");
+        assertThat(resultado.getBody()).containsKey("timestamp");
+    }
+
+    // ---------------------------------------------------------------
+    // handleMissingParam()
+    // ---------------------------------------------------------------
+
+    @Test
+    @DisplayName("handleMissingParam debe retornar 400 indicando el nombre del parámetro faltante")
+    void handleMissingParam_debeRetornar400ConNombreDelParametro() {
+        // Arrange
+        MissingServletRequestParameterException ex =
+                new MissingServletRequestParameterException("from", "String");
+
+        // Act
+        ResponseEntity<Map<String, Object>> resultado = exceptionHandler.handleMissingParam(ex);
+
+        // Assert
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody()).containsEntry("error", "Falta el parámetro obligatorio: from");
         assertThat(resultado.getBody()).containsKey("timestamp");
     }
 }

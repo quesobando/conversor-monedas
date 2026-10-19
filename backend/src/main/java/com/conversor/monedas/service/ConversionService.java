@@ -1,13 +1,17 @@
 package com.conversor.monedas.service;
 
-import com.conversor.monedas.dto.*;
+import com.conversor.monedas.dto.ConvertRequest;
+import com.conversor.monedas.dto.ConvertResponse;
+import com.conversor.monedas.dto.FrankfurterLatestResponse;
+import com.conversor.monedas.dto.FrankfurterTimeSeriesResponse;
+import com.conversor.monedas.dto.TimeSeriesPointDto;
+import com.conversor.monedas.dto.TimeSeriesResponse;
 import com.conversor.monedas.model.ConversionHistory;
 import com.conversor.monedas.repository.ConversionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,6 +19,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -29,12 +34,12 @@ public class ConversionService {
     }
 
     public Map<String, BigDecimal> listLatestRates(String base) {
-        return frankfurterService.getLatestRates(base.toUpperCase()).rates;
+        return frankfurterService.getLatestRates(base.toUpperCase(Locale.ROOT)).rates;
     }
 
     public ConvertResponse convert(ConvertRequest request) {
-        String from = request.getFrom().toUpperCase();
-        String to = request.getTo().toUpperCase();
+        String from = request.getFrom().toUpperCase(Locale.ROOT);
+        String to = request.getTo().toUpperCase(Locale.ROOT);
 
         FrankfurterLatestResponse latest = frankfurterService.getLatestRate(from, to);
         BigDecimal rate = latest.rates.get(to);
@@ -65,13 +70,13 @@ public class ConversionService {
     }
 
     public Page<ConversionHistory> getHistory(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size);
         return historyRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 
     public TimeSeriesResponse getVariation(String from, String to, LocalDate start, LocalDate end) {
-        String f = from.toUpperCase();
-        String t = to.toUpperCase();
+        String f = from.toUpperCase(Locale.ROOT);
+        String t = to.toUpperCase(Locale.ROOT);
         FrankfurterTimeSeriesResponse series = frankfurterService.getTimeSeries(f, t, start, end);
 
         List<TimeSeriesPointDto> points = new ArrayList<>();

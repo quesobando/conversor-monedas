@@ -1,5 +1,6 @@
 package com.conversor.monedas.controller;
 
+import com.conversor.monedas.config.GlobalExceptionHandler;
 import com.conversor.monedas.dto.ConvertRequest;
 import com.conversor.monedas.dto.ConvertResponse;
 import com.conversor.monedas.dto.TimeSeriesResponse;
@@ -337,9 +338,9 @@ class CurrencyControllerTest {
                 .content(objectMapper.writeValueAsString(request)));
 
         // Assert
-        // GlobalExceptionHandler.handleGeneric -> 500 con {timestamp, error: "Error inesperado: ..."}
+        // GlobalExceptionHandler.handleGeneric -> 500 con {timestamp, error: mensaje genérico}
         result.andExpect(status().isInternalServerError())
-              .andExpect(jsonPath("$.error").value("Error inesperado: Fallo al conectar con Frankfurter API"))
+              .andExpect(jsonPath("$.error").value(GlobalExceptionHandler.GENERIC_ERROR_MESSAGE))
               .andExpect(jsonPath("$.timestamp").exists());
         verify(conversionService).convert(any(ConvertRequest.class));
     }
@@ -370,7 +371,7 @@ class CurrencyControllerTest {
 
         // Assert
         result.andExpect(status().isInternalServerError())
-              .andExpect(jsonPath("$.error").value("Error inesperado: Servicio externo no disponible"));
+              .andExpect(jsonPath("$.error").value(GlobalExceptionHandler.GENERIC_ERROR_MESSAGE));
         verify(conversionService).listLatestRates("USD");
     }
 

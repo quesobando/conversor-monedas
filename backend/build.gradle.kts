@@ -109,11 +109,11 @@ sonar {
             "sonar.coverage.jacoco.xmlReportPaths",
             "build/reports/jacoco/test/jacocoTestReport.xml"
         )
-
-        // Excluidos solo de cobertura: clases sin lógica propia
+        
+        // Excluidos solo de cobertura: DTOs sin lógica y la clase que solo tiene main()
         property(
             "sonar.coverage.exclusions",
-            "**/dto/**,**/config/CorsConfig.java,**/config/WebClientConfig.java"
+            "**/dto/**,**/ConversorMonedasApplication.java"
         )
 
         // Excluidos de todo el análisis

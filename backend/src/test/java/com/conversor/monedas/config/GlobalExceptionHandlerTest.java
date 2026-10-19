@@ -117,8 +117,8 @@ class GlobalExceptionHandlerTest {
     // ---------------------------------------------------------------
 
     @Test
-    @DisplayName("handleGeneric debe retornar 500 con el mensaje de la excepción prefijado con 'Error inesperado:'")
-    void handleGeneric_debeRetornar500ConMensajePrefijado() {
+    @DisplayName("handleGeneric debe retornar 500 con mensaje genérico sin exponer el mensaje de la excepción")
+    void handleGeneric_debeRetornar500ConMensajeGenerico() {
         // Arrange
         Exception ex = new RuntimeException("Fallo de conexión con Frankfurter");
 
@@ -128,7 +128,8 @@ class GlobalExceptionHandlerTest {
         // Assert
         assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(resultado.getBody()).isNotNull();
-        assertThat(resultado.getBody()).containsEntry("error", "Error inesperado: Fallo de conexión con Frankfurter");
+        assertThat(resultado.getBody()).containsEntry("error", GlobalExceptionHandler.GENERIC_ERROR_MESSAGE);
+        assertThat(resultado.getBody().get("error").toString()).doesNotContain("Frankfurter");
         assertThat(resultado.getBody()).containsKey("timestamp");
     }
 

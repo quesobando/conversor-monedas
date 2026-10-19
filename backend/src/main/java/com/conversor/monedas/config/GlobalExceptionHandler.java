@@ -1,5 +1,6 @@
 package com.conversor.monedas.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,8 +12,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    public static final String GENERIC_ERROR_MESSAGE = "Error inesperado. Inténtalo de nuevo más tarde.";
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
@@ -35,7 +39,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(buildBody("Error inesperado: " + ex.getMessage()));
+        log.error("Error inesperado no controlado", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(buildBody(GENERIC_ERROR_MESSAGE));
     }
 
     private Map<String, Object> buildBody(String message) {

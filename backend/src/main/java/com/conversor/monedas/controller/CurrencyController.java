@@ -10,8 +10,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -30,7 +36,7 @@ public class CurrencyController {
 
     // GET /api/rates?base=USD -> tasas actuales para el ticker (no guarda historial)
     @GetMapping("/rates")
-    public ResponseEntity<Map<String, java.math.BigDecimal>> getRates(
+    public ResponseEntity<Map<String, BigDecimal>> getRates(
             @RequestParam(defaultValue = "USD") String base) {
         return ResponseEntity.ok(conversionService.listLatestRates(base));
     }
